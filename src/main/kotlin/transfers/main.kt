@@ -80,14 +80,12 @@ private fun checkLimits(amount: BigDecimal, transferSumInMonth: BigDecimal, tran
     }
 
     if (transferSystem == TransferSystem.VKPay &&
-        (amount > BigDecimal(15_000) || transferSumInMonth + amount > BigDecimal(40_000))
-    ) {
+        (amount > BigDecimal(15_000) || transferSumInMonth + amount > BigDecimal(40_000))) {
         println("${RED_TXT}You have exceeded the allowable limits for this month or this transaction!${RED_TXT}")
         return false
     }
     if (transferSystem != TransferSystem.VKPay &&
-        (amount > BigDecimal(150_000) || transferSumInMonth + amount > BigDecimal(600_000))
-    ) {
+        (amount > BigDecimal(150_000) || transferSumInMonth + amount > BigDecimal(600_000))) {
         // Здесь сутки я посчитал за один раз
         println("${RED_TXT}You have exceeded the allowable limits for this month or this transaction!${RED_TXT}")
         return false
