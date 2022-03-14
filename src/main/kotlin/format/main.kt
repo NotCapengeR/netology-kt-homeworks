@@ -25,7 +25,7 @@ private fun format(likes: Int): String {
             else "человек"
         }
         1 -> {
-            if (likes % 100 == 11) "человекам"
+            if (likes % 100 == 11) "людям"
             else "человеку"
         }
         2, 3, 4 -> {
