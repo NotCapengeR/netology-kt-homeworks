@@ -27,7 +27,7 @@ fun main() {
     smile.lastSeen = 3000
     users.add(0, User("Валера", Gender.MALE, 2_119_100))
     users.add(1, User("Alex", Gender.MALE, 30))
-    users.add(2, User("Вася", Gender.MALE, 32401))
+    users.add(2, User("Вася", Gender.MALE, 36_001))
     users.add(3, User("Олег", Gender.MALE, 10002))
     users.add(4, User("Женя :)", Gender.MALE, 527200))
     users.add(5, User("Аркадий", Gender.MALE, 21_030_400))
@@ -66,7 +66,7 @@ private fun agoToText(lastSeen: Long): String {
                     "${(lastSeen / 60)} минут"
                 )
             } назад"
-            in 3601..32400 -> "в сети ${
+            in 3601..36_000 -> "в сети ${
                 caseFormat(
                     (lastSeen / 3600).toString(),
                     "час",
@@ -74,7 +74,7 @@ private fun agoToText(lastSeen: Long): String {
                     "${(lastSeen / 3600)} часов"
                 )
             } назад"
-            in 32401..86_400 -> "в сети ${if (lastSeenToDate.day != currentDate.day) "вчера" else "сегодня"}" +
+            in 36_001..86_400 -> "в сети ${if (lastSeenToDate.day != currentDate.day) "вчера" else "сегодня"}" +
                     " ${todayFormat.format(lastSeenToDate)}"
             in 86_401..604_800 -> "в сети ${
                 when (lastSeen / 86_400) {
