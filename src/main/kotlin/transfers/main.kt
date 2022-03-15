@@ -33,10 +33,12 @@ fun main() {
         try {
             println("${RESET_TXT}Choose your transfer system:\n1) Mastercard\n2) Maestro\n3) Visa\n4) MIR\n5) VK Pay${RESET_TXT}")
             val inputTransferSystem: Int = readLine()!!.trim().toInt()
-            if (inputTransferSystem == 0) break
-            if (inputTransferSystem < 0 || inputTransferSystem > transferSystems.size) {
-                println("${RED_TXT}Error: Transfer system you entered does not exist!${RED_TXT}")
-                continue
+            when (inputTransferSystem) {
+                0 -> break
+                !in 1..transferSystems.size -> {
+                    println("${RED_TXT}Error: Transfer system you entered does not exist!${RED_TXT}")
+                    continue
+                }
             }
             val transferSystem: TransferSystem = transferSystems[inputTransferSystem - 1]
             println("Enter the amount for transfer (in ₽)")
@@ -58,7 +60,11 @@ fun main() {
     println("Finishing the program...")
 }
 
-private fun commission(amount: BigDecimal, transferSumInMonth: BigDecimal, transferSystem: TransferSystem): BigDecimal {
+private fun commission(
+    amount: BigDecimal,
+    transferSumInMonth: BigDecimal = BigDecimal(0), // По сути здесь не имеет смысла добавление значений по умолчанию
+    transferSystem: TransferSystem = TransferSystem.VKPay // Но в задании написано, что надо, значит надо :)
+): BigDecimal {
     return when (transferSystem) {
         TransferSystem.VKPay -> BigDecimal(0)
         TransferSystem.Visa, TransferSystem.MIR -> {
@@ -80,12 +86,14 @@ private fun checkLimits(amount: BigDecimal, transferSumInMonth: BigDecimal, tran
     }
 
     if (transferSystem == TransferSystem.VKPay &&
-        (amount > BigDecimal(15_000) || transferSumInMonth + amount > BigDecimal(40_000))) {
+        (amount > BigDecimal(15_000) || transferSumInMonth + amount > BigDecimal(40_000))
+    ) {
         println("${RED_TXT}You have exceeded the allowable limits for this month or this transaction!${RED_TXT}")
         return false
     }
     if (transferSystem != TransferSystem.VKPay &&
-        (amount > BigDecimal(150_000) || transferSumInMonth + amount > BigDecimal(600_000))) {
+        (amount > BigDecimal(150_000) || transferSumInMonth + amount > BigDecimal(600_000))
+    ) {
         // Здесь сутки я посчитал за один раз
         println("${RED_TXT}You have exceeded the allowable limits for this month or this transaction!${RED_TXT}")
         return false
