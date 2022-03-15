@@ -1,5 +1,10 @@
 package online
 
+import java.text.DateFormatSymbols
+import java.text.SimpleDateFormat
+import java.util.*
+
+
 data class User(val name: String, val gender: Gender, var lastSeen: Long)
 
 enum class Gender {
@@ -7,16 +12,25 @@ enum class Gender {
     FEMALE
 }
 
+private val monthsAndYearsFormat = SimpleDateFormat("d MMMM yyyy в H:mm")
+private val todayFormat = SimpleDateFormat("в H:mm")
+private val weekFormatSymbols = object : DateFormatSymbols() {
+    override fun getWeekdays(): Array<String> = arrayOf(
+        "в понедельник", "во вторник", "в среду", "в четверг", "в пятницу", "в субботу", "в воскресенье"
+    )
+}
+private val weekFormat = SimpleDateFormat("EEEE в H:mm", weekFormatSymbols)
+
 fun main() {
     val users = mutableListOf<User>()
     val smile = User("ヅ", Gender.MALE, 300)
     smile.lastSeen = 3000
     users.add(0, User("Валера", Gender.MALE, 2_119_100))
     users.add(1, User("Alex", Gender.MALE, 30))
-    users.add(2, User("Вася", Gender.MALE, 3482))
+    users.add(2, User("Вася", Gender.MALE, 86_400))
     users.add(3, User("Олег", Gender.MALE, 10002))
-    users.add(4, User("Женя :)", Gender.MALE, 700_000))
-    users.add(5, User("Аркадий", Gender.MALE, 29_030_400))
+    users.add(4, User("Женя :)", Gender.MALE, 527200))
+    users.add(5, User("Аркадий", Gender.MALE, 21_030_400))
     users.add(6, User("Crazy Frog", Gender.MALE, 172_800))
     users.add(7, User("Дональд Трамп", Gender.MALE, 29_030_401))
     users.add(8, smile)
@@ -39,6 +53,8 @@ private fun caseFormat(number: String, one: String, fromTwoToFour: String, other
 }
 
 private fun agoToText(lastSeen: Long): String {
+    val currentDate = Date()
+    val lastSeenToDate = Date(currentDate.time - (lastSeen * 1000))
     if (lastSeen >= 0) {
         return when (lastSeen) {
             in 0..60 -> "только что"
@@ -50,7 +66,7 @@ private fun agoToText(lastSeen: Long): String {
                     "${(lastSeen / 60)} минут"
                 )
             } назад"
-            in 3601..86400 -> "в сети ${
+            in 3601..32400 -> "в сети ${
                 caseFormat(
                     (lastSeen / 3600).toString(),
                     "час",
@@ -58,39 +74,18 @@ private fun agoToText(lastSeen: Long): String {
                     "${(lastSeen / 3600)} часов"
                 )
             } назад"
-            in 86_401..172_800 -> "в сети сегодня"
-            in 172_801..604_800 -> "в сети ${
-                caseFormat(
-                    (lastSeen / 172_800).toString(),
-                    "вчера",
-                    "${(lastSeen / 172_800)} дня назад",
-                    "${(lastSeen / 172_800)} дней назад"
-                )
+            in 32401..86_400 -> "в сети ${todayOrYesterday(currentDate, lastSeenToDate)} ${todayFormat.format(lastSeenToDate)}"
+            in 86_401..604_800 -> "в сети ${
+                when (lastSeen / 86_400) {
+                    1L -> "вчера ${todayFormat.format(lastSeenToDate)}"
+                    2L -> "позавчера ${todayFormat.format(lastSeenToDate)}"
+                    else -> weekFormat.format(lastSeenToDate)
+                }
             }"
-            in 604_801..2_419_200 -> "в сети ${
-                caseFormat(
-                    (lastSeen / 604_800).toString(),
-                    "неделю",
-                    "${(lastSeen / 604_800)} недели",
-                    "${(lastSeen / 604_800)} недель"
-                )
-            } назад"
-            in 2_419_201..29_030_400 -> "в сети ${
-                caseFormat(
-                    (lastSeen / 2_419_200).toString(),
-                    "месяц",
-                    "${(lastSeen / 2_419_200)} месяца",
-                    "${(lastSeen / 2_419_200)} месяцев"
-                )
-            } назад"
-            else -> "в сети ${
-                caseFormat(
-                    lastSeen.toString(),
-                    "год",
-                    "$lastSeen года",
-                    "$lastSeen лет"
-                )
-            } назад"
+            else -> "в сети ${monthsAndYearsFormat.format(lastSeenToDate)}"
         }
     } else throw IllegalArgumentException("Error: Time could not be negative!")
 }
+
+private fun todayOrYesterday(currentDate: Date, lastSeen: Date): String =
+    if (lastSeen.day != currentDate.day) "вчера" else "сегодня"
