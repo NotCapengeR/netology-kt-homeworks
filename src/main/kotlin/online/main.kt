@@ -38,9 +38,9 @@ fun main() {
 
 }
 
-private fun caseFormat(number: String, one: String, fromTwoToFour: String, others: String): String {
-    if (number.toLong() in 11..14) return others
-    return when (number.toLong() % 10) {
+private fun caseFormat(number: Long, one: String, fromTwoToFour: String, others: String): String {
+    if (number in 11..14) return others
+    return when (number % 10) {
         1L -> one
         in 2..4 -> fromTwoToFour
         else -> others
@@ -55,7 +55,7 @@ private fun agoToText(lastSeen: LocalDateTime): String {
             in 0..60 -> "только что"
             in 61..3600 -> "в сети ${
                 caseFormat(
-                    (lastSeenToSeconds / 60).toString(),
+                    (lastSeenToSeconds / 60),
                     "минуту",
                     "${(lastSeenToSeconds / 60)} минуты",
                     "${(lastSeenToSeconds / 60)} минут"
@@ -63,7 +63,7 @@ private fun agoToText(lastSeen: LocalDateTime): String {
             } назад"
             in 3601..36_000 -> "в сети ${
                 caseFormat(
-                    (lastSeenToSeconds / 3600).toString(),
+                    (lastSeenToSeconds / 3600),
                     "час",
                     "${(lastSeenToSeconds / 3600)} часа",
                     "${(lastSeenToSeconds / 3600)} часов"
