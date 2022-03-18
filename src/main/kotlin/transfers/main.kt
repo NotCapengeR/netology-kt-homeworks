@@ -60,7 +60,8 @@ fun main() {
     println("Finishing the program...")
 }
 
-private fun commission(
+@JvmOverloads
+fun commission(
     amount: BigDecimal,
     transferSumInMonth: BigDecimal = BigDecimal(0), // По сути здесь не имеет смысла добавление значений по умолчанию
     transferSystem: TransferSystem = TransferSystem.VKPay // Но в задании написано, что надо, значит надо :)
@@ -69,17 +70,17 @@ private fun commission(
         TransferSystem.VKPay -> BigDecimal(0)
         TransferSystem.Visa, TransferSystem.MIR -> {
             val commission: BigDecimal = amount * BigDecimal(0.0075)
-            if (commission > BigDecimal(35)) commission
+            if (commission > BigDecimal(35)) commission.setScale(2, RoundingMode.HALF_DOWN)
             else BigDecimal(35)
         }
         TransferSystem.Maestro, TransferSystem.Mastercard -> {
             if (transferSumInMonth + amount <= BigDecimal(75000)) BigDecimal(0)
-            else amount * BigDecimal(0.006) + BigDecimal(20)
+            else (amount * BigDecimal(0.006) + BigDecimal(20)).setScale(2, RoundingMode.HALF_DOWN)
         }
     }
 }
 
-private fun checkLimits(amount: BigDecimal, transferSumInMonth: BigDecimal, transferSystem: TransferSystem): Boolean {
+fun checkLimits(amount: BigDecimal, transferSumInMonth: BigDecimal, transferSystem: TransferSystem): Boolean {
     if (amount <= BigDecimal(35) && (transferSystem == TransferSystem.MIR || transferSystem == TransferSystem.Visa)) {
         println("${RED_TXT}Not enough funds to transfer money (you need 35 ₽ to pay commission)!${RED_TXT}")
         return false
@@ -101,7 +102,7 @@ private fun checkLimits(amount: BigDecimal, transferSumInMonth: BigDecimal, tran
     return true
 }
 
-private fun totalTransferred(transferred: BigDecimal, commission: BigDecimal): BigDecimal {
+fun totalTransferred(transferred: BigDecimal, commission: BigDecimal): BigDecimal {
     val total: BigDecimal = transferred - commission
     return if (total.compareTo(BigDecimal(0)) == 1) {
         total
