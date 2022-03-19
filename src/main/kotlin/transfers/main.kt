@@ -28,7 +28,7 @@ fun main() {
     repeat(transferSystems.size) { // Для каждой системы свой счётчик месячных лимитов.
         transferSumInMonth.add(BigDecimal(0))
     }
-    println("Enter zero number to finish the program.")
+    println("Enter zero number to finish the program")
     while (true) {
         try {
             println("${RESET_TXT}Choose your transfer system:\n1) Mastercard\n2) Maestro\n3) Visa\n4) MIR\n5) VK Pay${RESET_TXT}")
