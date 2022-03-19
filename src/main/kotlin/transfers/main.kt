@@ -83,7 +83,7 @@ fun commission(
 fun checkLimits(amount: BigDecimal, transferSumInMonth: BigDecimal, transferSystem: TransferSystem): Boolean {
     if (amount <= BigDecimal(35) && (transferSystem == TransferSystem.MIR || transferSystem == TransferSystem.Visa)) {
         println("${RED_TXT}Not enough funds to transfer money (you need 35 ₽ to pay commission)!${RED_TXT}")
-        return false
+        return true
     }
 
     if (transferSystem == TransferSystem.VKPay &&
