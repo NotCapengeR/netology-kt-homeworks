@@ -75,7 +75,7 @@ fun commission(
         }
         TransferSystem.Maestro, TransferSystem.Mastercard -> {
             if (transferSumInMonth + amount <= BigDecimal(75000)) BigDecimal(0)
-            else (amount * BigDecimal(0.006) + BigDecimal(20)).setScale(2, RoundingMode.HALF_DOWN)
+            else amount * BigDecimal(0.006) + BigDecimal(20)
         }
     }
 }
