@@ -87,7 +87,7 @@ fun checkLimits(amount: BigDecimal, transferSumInMonth: BigDecimal, transferSyst
     }
 
     if (transferSystem == TransferSystem.VKPay &&
-        (amount < BigDecimal(15_000) || transferSumInMonth + amount > BigDecimal(40_000))
+        (amount > BigDecimal(15_000) || transferSumInMonth + amount > BigDecimal(40_000))
     ) {
         println("${RED_TXT}You have exceeded the allowable limits for this month or this transaction!${RED_TXT}")
         return false
