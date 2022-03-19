@@ -70,7 +70,7 @@ fun commission(
         TransferSystem.VKPay -> BigDecimal(0)
         TransferSystem.Visa, TransferSystem.MIR -> {
             val commission: BigDecimal = amount * BigDecimal(0.0075)
-            if (commission > BigDecimal(35)) commission.setScale(2, RoundingMode.HALF_DOWN)
+            if (commission > BigDecimal(35)) commission
             else BigDecimal(35)
         }
         TransferSystem.Maestro, TransferSystem.Mastercard -> {
