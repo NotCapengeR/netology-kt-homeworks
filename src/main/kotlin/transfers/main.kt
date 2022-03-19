@@ -57,7 +57,7 @@ fun main() {
             println("${RED_TXT}Error: Invalid input data!${RED_TXT}")
         }
     }
-    println("Finishing the program...")
+    println("Finishing the program....")
 }
 
 @JvmOverloads
