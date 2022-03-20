@@ -1,6 +1,5 @@
 package transfers
 
-
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 
