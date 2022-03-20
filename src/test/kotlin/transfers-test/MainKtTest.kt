@@ -1,7 +1,11 @@
-package transfers
+package `transfers-test`
 
 import junit.framework.TestCase.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import transfers.TransferSystem
+import transfers.checkLimits
+import transfers.commission
+import transfers.totalTransferred
 
 import java.math.BigDecimal
 import java.math.RoundingMode
