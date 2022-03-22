@@ -9,11 +9,11 @@ private const val RESET_TXT = "\u001B[0m"
 fun main() {
     val valera = User(1, "Valera")
 
-    WallService.addPost("hueta0", valera, valera)
-    WallService.addPost("hueta1", valera, valera)
-    WallService.addPost("hueta2", valera, valera)
+    WallService.addPost("test0", valera, valera)
+    WallService.addPost("test1", valera, valera)
+    WallService.addPost("test2", valera, valera)
     WallService.outputUserWall(valera)
-    WallService.updatePost(1, "hueta4", valera)
+    WallService.updatePost(1, "test4", valera)
     println()
     WallService.outputUserWall(valera)
     println()
