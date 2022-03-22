@@ -84,7 +84,7 @@ object WallService {
 
 class WallServiceForTests {
     private val posts = HashMap<Long, MutableList<Post>>()
-    private var id = 1L
+    private var id = 0L
 
     fun outputUserWall(user: User) {
         posts[user.id]?.forEach {
