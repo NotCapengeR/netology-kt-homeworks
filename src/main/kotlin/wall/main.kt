@@ -22,11 +22,11 @@ fun main() {
 }
 
 object WallService {
-    private val posts = HashMap<Long, MutableList<Post>>()
+    private val posts = HashMap<Long, HashMap<Long, Post>>()
     private var id = 1L
 
     fun outputUserWall(user: User) {
-        posts[user.id]?.forEach {
+        posts[user.id]?.values?.forEach {
             println(it) // Лень было toString() переопределять для красивого вывода)
         }               // Энивей для нормального отображения будет UI использоваться
     }
@@ -39,17 +39,13 @@ object WallService {
             authorName = author.name,
             text = postText
         )
-        val currentUserPosts = mutableListOf<Post>()
-        if (posts.containsKey(wallOwner.id)) {
-            val previousUserPosts: List<Post>? = posts[wallOwner.id]
-            previousUserPosts?.forEach {
-                currentUserPosts.add(it)
-            }
+
+        if (!posts.containsKey(wallOwner.id)) {
+            posts[wallOwner.id] = HashMap()
         }
-        currentUserPosts.add(post)
-        posts[wallOwner.id] = currentUserPosts
+        posts[wallOwner.id]?.put(post.id, post)
         id++
-        return true
+        return posts[wallOwner.id]?.containsValue(post) == true
     }
 
     fun updatePost(postId: Long, newText: String, updateAuthor: User): Boolean {
@@ -57,8 +53,8 @@ object WallService {
         if (post != null && updateAuthor.id == post.authorId) {
             val newPost = post.copy(text = newText)
             val postsList = posts[post.wallOwnerId]
-            postsList?.set(postsList.indexOf(post), newPost)
-            return posts[post.wallOwnerId]?.contains(newPost)!!
+            postsList?.set(postId, newPost)
+            return posts[post.wallOwnerId]?.containsValue(newPost) == true
         }
         return false
     }
@@ -67,31 +63,23 @@ object WallService {
         val post = findPostById(postId)
         if (post != null) {
             val postsList = posts[post.wallOwnerId]
-            postsList?.remove(post)
-            return !postsList?.remove(post)!!
+            postsList?.remove(post.id)
+            return postsList?.containsValue(post) == false
         }
         return false
     }
 
     private fun findPostById(postId: Long): Post? {
-        posts.forEach { it ->
-            it.value.forEach {
-                if (it.id == postId) return it
-            }
+        posts.values.forEach {
+            if (it.containsKey(postId)) return it[postId]
         }
         return null
     }
 }
 
 class WallServiceForTests {
-    private val posts = HashMap<Long, MutableList<Post>>()
+    private val posts = HashMap<Long, HashMap<Long, Post>>()
     private var id = 1L
-
-    fun outputUserWall(user: User) {
-        posts[user.id]?.forEach {
-            println(it)
-        }
-    }
 
     fun addPost(postText: String, wallOwner: User, author: User): Boolean { //Always true
         val post = Post(
@@ -101,17 +89,12 @@ class WallServiceForTests {
             authorName = author.name,
             text = postText
         )
-        val currentUserPosts = mutableListOf<Post>()
-        if (posts.containsKey(wallOwner.id)) {
-            val previousUserPosts: List<Post>? = posts[wallOwner.id]
-            previousUserPosts?.forEach {
-                currentUserPosts.add(it)
-            }
+        if (!posts.containsKey(wallOwner.id)) {
+            posts[wallOwner.id] = HashMap()
         }
-        currentUserPosts.add(post)
-        posts[wallOwner.id] = currentUserPosts
+        posts[wallOwner.id]?.put(post.id, post)
         id++
-        return true
+        return posts[wallOwner.id]?.containsValue(post) == true
     }
 
     fun updatePost(postId: Long, newText: String, updateAuthor: User): Boolean {
@@ -119,8 +102,8 @@ class WallServiceForTests {
         if (post != null && updateAuthor.id == post.authorId) {
             val newPost = post.copy(text = newText)
             val postsList = posts[post.wallOwnerId]
-            postsList?.set(postsList.indexOf(post), newPost)
-            return posts[post.wallOwnerId]?.contains(newPost)!!
+            postsList?.set(postId, newPost)
+            return posts[post.wallOwnerId]?.containsValue(newPost) == true
         }
         return false
     }
@@ -129,17 +112,15 @@ class WallServiceForTests {
         val post = findPostById(postId)
         if (post != null) {
             val postsList = posts[post.wallOwnerId]
-            postsList?.remove(post)
-            return !postsList?.remove(post)!!
+            postsList?.remove(post.id)
+            return postsList?.containsValue(post) == false
         }
         return false
     }
 
     fun findPostById(postId: Long): Post? {
-        posts.forEach { it ->
-            it.value.forEach {
-                if (it.id == postId) return it
-            }
+        posts.values.forEach {
+            if (it.containsKey(postId)) return it[postId]
         }
         return null
     }
