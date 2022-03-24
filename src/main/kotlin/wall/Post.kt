@@ -6,6 +6,7 @@ data class Post(
     val id: Long,
     val wallOwnerId: Long,
     val authorId: Long,
+    val authorName: String,
     val text: String,
     val date: LocalDateTime = LocalDateTime.now(),
     val likes: Int = 0,

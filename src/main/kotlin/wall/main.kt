@@ -36,6 +36,7 @@ object WallService {
             id = id,
             wallOwnerId = wallOwner.id,
             authorId = author.id,
+            authorName = author.name,
             text = postText
         )
         val currentUserPosts = mutableListOf<Post>()
@@ -97,6 +98,7 @@ class WallServiceForTests {
             id = id,
             wallOwnerId = wallOwner.id,
             authorId = author.id,
+            authorName = author.name,
             text = postText
         )
         val currentUserPosts = mutableListOf<Post>()
