@@ -9,9 +9,9 @@ fun main() {
     val valera = User(1, "Valera")
     val kirkorov = User(2, "Valera")
     val video = Video(1, "Type name", "mp4", kirkorov.id, kirkorov.id, kirkorov.name, 2073600)
-    val attachVideo = VideoAttachment(video.type, video)
+    val attachVideo = VideoAttachment(video = video)
     val video2 = Video(2, "Type name2", "mp4", kirkorov.id, kirkorov.id, kirkorov.name, 2073600)
-    val attachVideo2 = VideoAttachment(video2.type, video2)
+    val attachVideo2 = VideoAttachment(video = video2)
 
     WallService.addPost("test0", valera, valera)
     WallService.addPost("test1", valera, valera)

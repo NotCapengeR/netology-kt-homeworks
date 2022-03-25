@@ -3,30 +3,28 @@ package attachments
 abstract class Attachments(open val type: String)
 
 data class VideoAttachment(
-    override val type: String,
+    override val type: String = "video",
     val video: Video
 ) : Attachments(type)
 
 data class PhotoAttachment(
-    override val type: String,
+    override val type: String = "photo",
     val photo: Photo
 ) : Attachments(type)
 
 data class AudioAttachment(
-    override val type: String,
+    override val type: String = "audio",
     val audio: Audio
 ) : Attachments(type)
 
 data class DocumentAttachment(
-    override val type: String,
+    override val type: String = "document",
     val document: Document
 ) : Attachments(type)
 
 data class MapAttachment(
-    override val type: String,
-    val id: Long,
-    val ownerId: Long,
-    val userId: Long,
+    override val type: String = "map",
+    val map: Map,
 ) : Attachments(type)
 
 data class Map(
@@ -35,7 +33,6 @@ data class Map(
     val ownerId: Long,
     val userId: Long,
     val geo: String,
-    val type: String = "map"
 )
 
 data class Document(
@@ -54,7 +51,6 @@ data class Audio(
     val fileFormat: String,
     val singer: String,
     val quality: Int,
-    val type: String = "audio"
 )
 
 data class Video(
@@ -65,7 +61,6 @@ data class Video(
     val userId: Long,
     val author: String,
     val quality: Int,
-    val type: String = "video"
 )
 
 data class Photo(
@@ -76,5 +71,4 @@ data class Photo(
     val fileFormat: String,
     val resolution: Int,
     val author: String,
-    val type: String = "photo"
 )
