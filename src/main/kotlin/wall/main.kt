@@ -72,19 +72,19 @@ object WallService {
     }
 
     fun report(commentId: Long, postId: Long, reason: Int): Boolean {
-        if (reasons.containsKey(reason)) {
-            return when (val result = findPostById(postId)) {
-                is PostSearchResult.Success -> {
+        when (val result = findPostById(postId)) {
+            is PostSearchResult.Success -> {
+                if (reasons.containsKey(reason)) {
                     val post = result.post
                     val report = reasons[reason]?.let { Report(id = reportId, commentId = commentId, reason = it) }
                     if (post.comments.containsKey(commentId) && report != null) {
                         post.comments[commentId]?.reports?.put(report.id, report)
-                        post.comments[commentId]?.reports?.containsValue(report) == true
+                        return post.comments[commentId]?.reports?.containsValue(report) == true
                     } else throw CommentNotFoundException()
-                }
-                is PostSearchResult.PostNotFound -> throw PostNotFoundException()
+                } else throw InvalidReasonException()
             }
-        } else throw InvalidReasonException()
+            is PostSearchResult.PostNotFound -> throw PostNotFoundException()
+        }
     }
 
     @JvmOverloads
