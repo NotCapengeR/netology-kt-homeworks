@@ -2,7 +2,7 @@ package wall
 
 import attachments.Attachments
 import attachments.Video
-import attachments.VideoAttachment
+import attachments.Attachments.VideoAttachment
 import kotlin.collections.HashMap
 
 fun main() {
