@@ -1,6 +1,8 @@
 package wall
 
 import attachments.Attachments
+import comments.Comment
+import reports.Report
 import java.time.LocalDateTime
 
 data class Post(
@@ -11,6 +13,8 @@ data class Post(
     val text: String,
     val date: LocalDateTime = LocalDateTime.now(),
     val attachments: MutableList<Attachments> = mutableListOf(),
+    val comments: HashMap<Long, Comment> = HashMap(),
+    val reports: HashMap<Long, Report> = HashMap(),
     val likes: Int = 0,
     val views: Int = 0,
     val copyright: String?,

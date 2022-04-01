@@ -3,6 +3,8 @@ package wall
 import attachments.Attachments
 import attachments.Video
 import attachments.Attachments.VideoAttachment
+import comments.Comment
+import reports.Report
 import kotlin.collections.HashMap
 
 fun main() {
@@ -26,11 +28,35 @@ fun main() {
     println()
     WallService.deletePost(2)
     WallService.outputUserWall(valera)
+    println()
+    WallService.createComment("fashkjsfkjfakjsfkjh", kirkorov.id, 1)
+    WallService.createComment("fashkjsfkjf312123akjsfkjh", kirkorov.id, 1)
+    WallService.createComment("fashkjsfkj312312fakjsfkjh", kirkorov.id, 1)
+    WallService.createComment("fashkjsfkjf13232akjsfkjh", kirkorov.id, 1)
+    WallService.outputUserWall(valera)
+    WallService.report(2, 1, 3)
+}
+
+private fun makeReasons(): HashMap<Int, String> {
+    val reasons = HashMap<Int, String>()
+    reasons[0] = "Спам"
+    reasons[1] = "Детская порнография"
+    reasons[2] = "Экстремизм"
+    reasons[3] = "Пропаганда наркотиков"
+    reasons[4] = "Насилие"
+    reasons[5] = "Материал для взрослых"
+    reasons[6] = "Оскорбление"
+    reasons[8] = "Призыв к суициду"
+    return reasons
 }
 
 object WallService {
     private val posts = HashMap<Long, HashMap<Long, Post>>()
     private var id = 1L
+    private var commentId = 1L
+    private var reportId = 1L
+    private val reasons = makeReasons()
+
 
     fun outputUserWall(user: User) {
         posts[user.id]?.values?.forEach {
@@ -39,8 +65,51 @@ object WallService {
     }
 
     fun outputAttachments(postId: Long) {
-        val post = findPostById(postId)
-        println("Attachments: ${post?.attachments}")
+        when (val result = findPostById(postId)) {
+            is PostSearchResult.Success -> println("Attachments: ${result.post.attachments}")
+            is PostSearchResult.PostNotFound -> println("Post not found!")
+        }
+    }
+
+    fun report(commentId: Long, postId: Long, reason: Int): Boolean {
+        if (reasons.containsKey(reason)) {
+            return when (val result = findPostById(postId)) {
+                is PostSearchResult.Success -> {
+                    val post = result.post
+                    val report = reasons[reason]?.let { Report(id = reportId, commentId = commentId, reason = it) }
+                    if (post.comments.containsKey(commentId) && report != null) {
+                        post.comments[commentId]?.reports?.put(report.id, report)
+                        post.comments[commentId]?.reports?.containsValue(report) == true
+                    } else throw CommentNotFoundException()
+                }
+                is PostSearchResult.PostNotFound -> throw PostNotFoundException()
+            }
+        } else throw InvalidReasonException()
+    }
+
+    @JvmOverloads
+    fun createComment(
+        text: String,
+        authorId: Long,
+        postId: Long,
+        replyUserId: Long? = null,
+        replyCommentId: Long? = null
+    ) {
+        when (val result: PostSearchResult = findPostById(postId)) {
+            is PostSearchResult.Success -> {
+                val post = result.post
+                val comment = Comment(
+                    id = commentId,
+                    authorId = authorId,
+                    text = text,
+                    replyUserId = replyUserId,
+                    replyCommentId = replyCommentId
+                )
+                post.comments[commentId] = comment
+                commentId++
+            }
+            is PostSearchResult.PostNotFound -> throw PostNotFoundException()
+        }
     }
 
     @JvmOverloads
@@ -50,7 +119,7 @@ object WallService {
         author: User,
         copyright: String? = null,
         replyPost: Post? = null,
-        isPinned: Boolean = false ,
+        isPinned: Boolean = false,
         friendOnly: Boolean = false,
         markedAsAd: Boolean = false,
     ): Boolean { //Always true
@@ -77,47 +146,101 @@ object WallService {
     }
 
     fun updatePost(postId: Long, newText: String, updateAuthor: User): Boolean {
-        val post = findPostById(postId)
-        if (post != null && updateAuthor.id == post.authorId) {
-            val newPost = post.copy(text = newText)
-            newPost.editHistory.add(post.text)
-            val postsList = posts[post.wallOwnerId]
-            postsList?.set(postId, newPost)
-            return posts[post.wallOwnerId]?.containsValue(newPost) == true
+        return when (val result: PostSearchResult = findPostById(postId)) {
+            is PostSearchResult.Success -> {
+                val post = result.post
+                if (updateAuthor.id == post.authorId) {
+                    val newPost = post.copy(text = newText)
+                    newPost.editHistory.add(post.text)
+                    val postsList = posts[post.wallOwnerId]
+                    postsList?.set(postId, newPost)
+                    postsList?.containsValue(newPost) == false
+                } else false
+            }
+            is PostSearchResult.PostNotFound -> false
         }
-        return false
     }
 
     fun deletePost(postId: Long): Boolean {
-        val post = findPostById(postId)
-        if (post != null) {
-            val postsList = posts[post.wallOwnerId]
-            postsList?.remove(post.id)
-            return postsList?.containsValue(post) == false
+        return when (val result: PostSearchResult = findPostById(postId)) {
+            is PostSearchResult.Success -> {
+                val post = result.post
+                val postsList = posts[post.wallOwnerId]
+                postsList?.remove(post.id)
+                postsList?.containsValue(post) == false
+            }
+            is PostSearchResult.PostNotFound -> false
         }
-        return false
     }
 
     fun attach(postId: Long, attachAuthor: User, attachment: Attachments): Boolean {
-        val post = findPostById(postId)
-        if (post != null && attachAuthor.id == post.authorId) {
-            post.attachments.add(attachment)
-            return post.attachments.contains(attachment)
+        return when (val result: PostSearchResult = findPostById(postId)) {
+            is PostSearchResult.Success -> {
+                val post = result.post
+                if (attachAuthor.id == post.authorId) {
+                    post.attachments.add(attachment)
+                    return post.attachments.contains(attachment)
+                } else false
+            }
+            is PostSearchResult.PostNotFound -> false
         }
-        return false
     }
 
-    private fun findPostById(postId: Long): Post? {
+    private fun findPostById(postId: Long): PostSearchResult {
         posts.values.forEach {
-            if (it.containsKey(postId)) return it[postId]
+            if (it.containsKey(postId) && it[postId] != null) return PostSearchResult.Success(it[postId]!!)
         }
-        return null
+        return PostSearchResult.PostNotFound
     }
 }
 
 class WallServiceForTests {
     private val posts = HashMap<Long, HashMap<Long, Post>>()
     private var id = 1L
+    private var commentId = 1L
+    private var reportId = 1L
+    private val reasons = makeReasons()
+
+    fun report(commentId: Long, postId: Long, reason: Int): Boolean {
+        when (val result = findPostById(postId)) {
+            is PostSearchResult.Success -> {
+                if (reasons.containsKey(reason)) {
+                    val post = result.post
+                    val report = reasons[reason]?.let { Report(id = reportId, commentId = commentId, reason = it) }
+                    if (post.comments.containsKey(commentId) && report != null) {
+                        post.comments[commentId]?.reports?.put(report.id, report)
+                        return post.comments[commentId]?.reports?.containsValue(report) == true
+                    } else throw CommentNotFoundException()
+                } else throw InvalidReasonException()
+            }
+            is PostSearchResult.PostNotFound -> throw PostNotFoundException()
+        }
+    }
+
+    @JvmOverloads
+    fun createComment(
+        text: String,
+        authorId: Long,
+        postId: Long,
+        replyUserId: Long? = null,
+        replyCommentId: Long? = null
+    ) {
+        when (val result: PostSearchResult = findPostById(postId)) {
+            is PostSearchResult.Success -> {
+                val post = result.post
+                val comment = Comment(
+                    id = commentId,
+                    authorId = authorId,
+                    text = text,
+                    replyUserId = replyUserId,
+                    replyCommentId = replyCommentId
+                )
+                post.comments[commentId] = comment
+                commentId++
+            }
+            is PostSearchResult.PostNotFound -> throw PostNotFoundException()
+        }
+    }
 
     @JvmOverloads
     fun addPost(
@@ -126,7 +249,7 @@ class WallServiceForTests {
         author: User,
         copyright: String? = null,
         replyPost: Post? = null,
-        isPinned: Boolean = false ,
+        isPinned: Boolean = false,
         friendOnly: Boolean = false,
         markedAsAd: Boolean = false,
     ): Boolean { //Always true
@@ -153,31 +276,37 @@ class WallServiceForTests {
     }
 
     fun updatePost(postId: Long, newText: String, updateAuthor: User): Boolean {
-        val post = findPostById(postId)
-        if (post != null && updateAuthor.id == post.authorId) {
-            val newPost = post.copy(text = newText)
-            newPost.editHistory.add(post.text)
-            val postsList = posts[post.wallOwnerId]
-            postsList?.set(postId, newPost)
-            return posts[post.wallOwnerId]?.containsValue(newPost) == true
+        return when (val result: PostSearchResult = findPostById(postId)) {
+            is PostSearchResult.Success -> {
+                val post = result.post
+                if (updateAuthor.id == post.authorId) {
+                    val newPost = post.copy(text = newText)
+                    newPost.editHistory.add(post.text)
+                    val postsList = posts[post.wallOwnerId]
+                    postsList?.set(postId, newPost)
+                    postsList?.containsValue(newPost) == true
+                } else false
+            }
+            is PostSearchResult.PostNotFound -> false
         }
-        return false
     }
 
     fun deletePost(postId: Long): Boolean {
-        val post = findPostById(postId)
-        if (post != null) {
-            val postsList = posts[post.wallOwnerId]
-            postsList?.remove(post.id)
-            return postsList?.containsValue(post) == false
+        return when (val result: PostSearchResult = findPostById(postId)) {
+            is PostSearchResult.Success -> {
+                val post = result.post
+                val postsList = posts[post.wallOwnerId]
+                postsList?.remove(post.id)
+                postsList?.containsValue(post) == false
+            }
+            is PostSearchResult.PostNotFound -> false
         }
-        return false
     }
 
-    fun findPostById(postId: Long): Post? {
+    fun findPostById(postId: Long): PostSearchResult {
         posts.values.forEach {
-            if (it.containsKey(postId)) return it[postId]
+            if (it.containsKey(postId) && it[postId] != null) return PostSearchResult.Success(it[postId]!!)
         }
-        return null
+        return PostSearchResult.PostNotFound
     }
 }
