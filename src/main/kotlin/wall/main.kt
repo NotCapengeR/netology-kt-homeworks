@@ -25,6 +25,7 @@ fun main() {
     NoteService.addNote("ewq2", "241jkl123124", kirkorov.id)
     NoteService.addNote("ewq1", "12241jkl124", kirkorov.id)
     println(NoteService.getNotes(kirkorov.id, false, 0, 20, 5, 1, 10))
+    println(NoteService.getNotes(kirkorov.id, false, 0, 20, 2))
     NoteService.createComment(2, valera.id, kirkorov.id, "test1")
     NoteService.createComment(2, valera.id, kirkorov.id, "test2")
     NoteService.createComment(2, valera.id, kirkorov.id, "test3")
@@ -62,8 +63,7 @@ object NoteService {
         if (notes.containsKey(ownerId) && notes[ownerId]?.containsKey(noteId) == true) {
             val note = notes[ownerId]?.get(noteId)
             if (note != null && !note.comments.values.isEmpty()) {
-                val commentsList = ArrayList<Comment>()
-                commentsList.addAll(note.comments.values)
+                val commentsList = note.comments.values
                 commentsList.filter { it.id >= offset }
                     .take(count)
                     .sortedWith { p1, p2 ->
@@ -88,10 +88,9 @@ object NoteService {
             return emptyList()
         }
 
-        if (notes[ownerId] != null) {
-            if (!notes[ownerId]?.values.isNullOrEmpty()) {
-                val notesList = ArrayList<Note>()
-                notesList.addAll(notes[ownerId]?.values!!)
+        if (!notes[ownerId]?.values.isNullOrEmpty() && !notes[ownerId].isNullOrEmpty()) {
+            val notesList = notes[ownerId]?.values
+            if (!notesList.isNullOrEmpty()) {
                 notesList.filter { noteIds.contains(it.id) && it.id >= offset }
                     .take(count)
                     .sortedWith { p1, p2 ->
@@ -99,7 +98,7 @@ object NoteService {
                     }
                     .also { // предупреждает, если какая-то из указанных заметок не найдена
                         noteIds.forEach {
-                            if (!checkNoteId(it, notesList)) println("Note with id $it not found!")
+                            if (!checkNoteId(it, notesList.toList())) println("Note with id $it not found!")
                         }
                     }
                     .let { return if (!sort) it.reversed() else it }

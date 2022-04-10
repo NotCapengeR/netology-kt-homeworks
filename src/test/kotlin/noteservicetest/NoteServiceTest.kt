@@ -95,8 +95,7 @@ class NoteService {
         if (notes.containsKey(ownerId) && notes[ownerId]?.containsKey(noteId) == true) {
             val note = notes[ownerId]?.get(noteId)
             if (note != null && !note.comments.values.isEmpty()) {
-                val commentsList = ArrayList<Comment>()
-                commentsList.addAll(note.comments.values)
+                val commentsList = note.comments.values
                 commentsList.filter { it.id >= offset }
                     .take(count)
                     .sortedWith { p1, p2 ->
@@ -121,18 +120,17 @@ class NoteService {
             return emptyList()
         }
 
-        if (notes[ownerId] != null) {
-            if (!notes[ownerId]?.values.isNullOrEmpty()) {
-                val notesList = ArrayList<Note>()
-                notesList.addAll(notes[ownerId]?.values!!)
+        if (!notes[ownerId]?.values.isNullOrEmpty() && notes[ownerId].isNullOrEmpty()) {
+            val notesList = notes[ownerId]?.values
+            if (!notesList.isNullOrEmpty()) {
                 notesList.filter { noteIds.contains(it.id) && it.id >= offset }
                     .take(count)
                     .sortedWith { p1, p2 ->
                         p1.date.compareTo(p2.date)
                     }
-                    .also {    // предупреждает, если какая-то из указанных заметок не найдена
+                    .also { // предупреждает, если какая-то из указанных заметок не найдена
                         noteIds.forEach {
-                            if (!checkNoteId(it, notesList)) println("Note with id $it not found!")
+                            if (checkNoteId(it, notesList.toList())) println("Note with id $it not found!")
                         }
                     }
                     .let { return if (!sort) it.reversed() else it }
