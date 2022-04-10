@@ -64,7 +64,7 @@ object NoteService {
             val note = notes[ownerId]?.get(noteId)
             if (note != null && !note.comments.values.isEmpty()) {
                 val commentsList = note.comments.values
-                commentsList.filter { it.id >= offset }
+                commentsList.filter { commentsList.indexOf(it) >= offset }
                     .take(count)
                     .sortedWith { p1, p2 ->
                         p1.date.compareTo(p2.date)
@@ -91,7 +91,7 @@ object NoteService {
         if (!notes[ownerId]?.values.isNullOrEmpty() && !notes[ownerId].isNullOrEmpty()) {
             val notesList = notes[ownerId]?.values
             if (!notesList.isNullOrEmpty()) {
-                notesList.filter { noteIds.contains(it.id) && it.id >= offset }
+                notesList.filter { noteIds.contains(it.id) && notesList.indexOf(it) >= offset }
                     .take(count)
                     .sortedWith { p1, p2 ->
                         p1.date.compareTo(p2.date)
