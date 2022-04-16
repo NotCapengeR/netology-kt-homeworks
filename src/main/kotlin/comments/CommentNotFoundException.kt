@@ -1,3 +1,3 @@
-package wall
+package comments
 
 class CommentNotFoundException : Exception()

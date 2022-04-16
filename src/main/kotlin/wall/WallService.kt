@@ -1,128 +1,16 @@
-package wallservicetest
+package wall.wall
 
-import wall.*
-import post.Post
-import reports.Report
+import attachments.Attachments
 import comments.Comment
-import post.PostSearchResult
-import org.junit.jupiter.api.Test
-import junit.framework.TestCase.*
-import post.PostNotFoundException
-import reports.InvalidReasonException
 import comments.CommentNotFoundException
-import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertThrows
+import post.Post
+import post.PostNotFoundException
+import post.PostSearchResult
+import reports.InvalidReasonException
+import reports.Report
+import wall.User
 
-class WallServiceTest {
-
-    @Test
-    fun `comment not found report`() {
-        assertThrows<CommentNotFoundException> {
-            val service = WallServiceForTests()
-            val owner = User(1, "zzzzz")
-            service.addPost("afskhjfjasfafhsja", owner, owner)
-            service.createComment("1k2hh3jk2", 1, 1)
-            service.report(124, 1, 0)
-        }
-    }
-
-    @Test
-    fun `post not found report`() {
-        assertThrows<PostNotFoundException> {
-            val service = WallServiceForTests()
-            val owner = User(1, "zzzzz")
-            service.addPost("afskhjfjasfafhsja", owner, owner)
-            service.createComment("1k2hh3jk2", 1, 1)
-            service.report(1, 3121, 0)
-        }
-    }
-
-    @Test
-    fun `invalid reason report`() {
-        assertThrows<InvalidReasonException> {
-            val service = WallServiceForTests()
-            val owner = User(1, "zzzzz")
-            service.addPost("afskhjfjasfafhsja", owner, owner)
-            service.createComment("1k2hh3jk2", 1, 1)
-            service.report(1, 1, 132132)
-        }
-    }
-
-    @Test
-    fun `should throw`() {
-        assertThrows<PostNotFoundException> {
-            val service = WallServiceForTests()
-            val owner = User(1, "zzzzz")
-            service.addPost("afskhjfjasfafhsja", owner, owner)
-            service.createComment("1k2hh3jk2", 1, 121)
-        }
-    }
-
-    @Test
-    fun `shouldn't throw`() {
-        assertDoesNotThrow {
-            val service = WallServiceForTests()
-            val owner = User(1, "zzzzz")
-            service.addPost("afskhjfjasfafhsja", owner, owner)
-            service.createComment("1k2hh3jk2", 1, 1)
-        }
-    }
-
-    @Test
-    fun `add check id`() {
-        val service = WallServiceForTests()
-        val owner = User(1, "zzzzz")
-        service.addPost("afskhjfjasfafhsja", owner, owner)
-        val post = service.findPostById(0).post
-        assertNull(post)
-    }
-
-    @Test
-    fun `update existing`() {
-        val service = WallServiceForTests()
-        val owner = User(1, "zzzzz")
-        service.addPost("fashjkafskhjfshj", owner, owner)
-        service.addPost("31223312fashjkafskhjfshj", owner, owner)
-        service.addPost("fashjkafskh31212234jfshj", owner, owner)
-        val result = service.updatePost(2, "1lk23j13ljk2", owner)
-        assertTrue(result)
-    }
-
-    @Test
-    fun `update not existing`() {
-        val service = WallServiceForTests()
-        val owner = User(1, "zzzzz")
-        service.addPost("fashjkafskhjfshj", owner, owner)
-        service.addPost("31223312fashjkafskhjfshj", owner, owner)
-        service.addPost("fashjkafskh31212234jfshj", owner, owner)
-        val result = service.updatePost(10, "1lk23j13ljk2", owner)
-        assertFalse(result)
-    }
-
-    @Test
-    fun `delete existing`() {
-        val service = WallServiceForTests()
-        val owner = User(1, "zzzzz")
-        service.addPost("fashjkafskhjfshj", owner, owner)
-        service.addPost("31223312fashjkafskhjfshj", owner, owner)
-        service.addPost("fashjkafskh31212234jfshj", owner, owner)
-        val result = service.deletePost(2)
-        assertTrue(result)
-    }
-
-    @Test
-    fun `delete not existing`() {
-        val service = WallServiceForTests()
-        val owner = User(1, "zzzzz")
-        service.addPost("fashjkafskhjfshj", owner, owner)
-        service.addPost("31223312fashjkafskhjfshj", owner, owner)
-        service.addPost("fashjkafskh31212234jfshj", owner, owner)
-        val result = service.deletePost(10)
-        assertFalse(result)
-    }
-}
-
-class WallServiceForTests {
+object WallService {
     private val posts = HashMap<Long, HashMap<Long, Post>>()
     private var id = 1L
     private var commentId = 1L
@@ -140,6 +28,19 @@ class WallServiceForTests {
         reasons[6] = "Оскорбление"
         reasons[8] = "Призыв к суициду"
         return reasons
+    }
+
+    fun outputUserWall(user: User) {
+        posts[user.id]?.values?.forEach {
+            println(it) // Лень было toString() переопределять для красивого вывода)
+        }               // Энивей для нормального отображения будет UI использоваться
+    }
+
+    fun outputAttachments(postId: Long) {
+        when (val result = findPostById(postId)) {
+            is PostSearchResult.Success -> println("Attachments: ${result.post.attachments}")
+            is PostSearchResult.PostNotFound -> println("Post not found!")
+        }
     }
 
     fun report(commentId: Long, postId: Long, reason: Int): Boolean {
@@ -225,7 +126,7 @@ class WallServiceForTests {
                     newPost.editHistory.add(post.text)
                     val postsList = posts[post.wallOwnerId]
                     postsList?.set(postId, newPost)
-                    postsList?.containsValue(newPost) == true
+                    postsList?.containsValue(newPost) == false
                 } else false
             }
             is PostSearchResult.PostNotFound -> false
@@ -244,7 +145,20 @@ class WallServiceForTests {
         }
     }
 
-    fun findPostById(postId: Long): PostSearchResult {
+    fun attach(postId: Long, attachAuthor: User, attachment: Attachments): Boolean {
+        return when (val result: PostSearchResult = findPostById(postId)) {
+            is PostSearchResult.Success -> {
+                val post = result.post
+                if (attachAuthor.id == post.authorId) {
+                    post.attachments.add(attachment)
+                    return post.attachments.contains(attachment)
+                } else false
+            }
+            is PostSearchResult.PostNotFound -> false
+        }
+    }
+
+    private fun findPostById(postId: Long): PostSearchResult {
         posts.values.forEach {
             if (it.containsKey(postId) && it[postId] != null) return PostSearchResult.Success(it[postId]!!)
         }

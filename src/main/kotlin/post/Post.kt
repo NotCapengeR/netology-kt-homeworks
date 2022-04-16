@@ -1,4 +1,4 @@
-package wall
+package post
 
 import attachments.Attachments
 import comments.Comment
