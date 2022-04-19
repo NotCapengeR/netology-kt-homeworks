@@ -11,7 +11,7 @@ data class Post(
     val authorId: Long,
     val authorName: String,
     val text: String,
-    val date: LocalDateTime = LocalDateTime.now(),
+    val date: LocalDateTime,
     val attachments: MutableList<Attachments> = mutableListOf(),
     val comments: HashMap<Long, Comment> = HashMap(),
     val reports: HashMap<Long, Report> = HashMap(),

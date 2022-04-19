@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 data class Comment(
     val id: Long,
     val authorId: Long,
-    val date: LocalDateTime = LocalDateTime.now(),
+    val date: LocalDateTime,
     val text: String,
     val replyUserId: Long?,
     val replyCommentId: Long?,

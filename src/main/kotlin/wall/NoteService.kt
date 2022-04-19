@@ -4,6 +4,7 @@ import notes.Note
 import comments.Comment
 import notes.NoteNotFoundException
 import notes.UserNotFoundException
+import java.time.LocalDateTime
 
 private const val ALL_USERS = 1
 private const val FRIENDS_ONLY = 2
@@ -108,7 +109,8 @@ object NoteService {
             text = text,
             authorId = authorId,
             privacy = privacy,
-            commentPrivacy = commentPrivacy
+            commentPrivacy = commentPrivacy,
+            date = LocalDateTime.now()
         )
 
         if (!notes.containsKey(authorId)) notes[authorId] = HashMap()
@@ -131,7 +133,8 @@ object NoteService {
             authorId = authorId,
             text = message,
             replyUserId = replyToUserId,
-            replyCommentId = replyCommentId
+            replyCommentId = replyCommentId,
+            date = LocalDateTime.now()
         )
         return if (notes.containsKey(ownerId) && notes[ownerId]?.containsKey(noteId) == true) {
             val note = getNoteById(noteId, ownerId)

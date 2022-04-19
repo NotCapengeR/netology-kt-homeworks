@@ -10,7 +10,7 @@ data class Note(
     val text: String,
     val privacy: Int,
     val commentPrivacy: Int,
-    val date: LocalDateTime = LocalDateTime.now(),
+    val date: LocalDateTime,
     val comments: HashMap<Long, Comment> = HashMap(),
     val deletedComments: HashMap<Long, Comment> = HashMap(),
 )

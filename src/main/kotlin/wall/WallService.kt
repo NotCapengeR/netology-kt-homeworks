@@ -9,6 +9,7 @@ import post.PostSearchResult
 import reports.InvalidReasonException
 import reports.Report
 import wall.User
+import java.time.LocalDateTime
 
 object WallService {
     private val posts = HashMap<Long, HashMap<Long, Post>>()
@@ -75,7 +76,8 @@ object WallService {
                     authorId = authorId,
                     text = text,
                     replyUserId = replyUserId,
-                    replyCommentId = replyCommentId
+                    replyCommentId = replyCommentId,
+                    date = LocalDateTime.now(),
                 )
                 post.comments[commentId] = comment
                 commentId++
@@ -102,6 +104,7 @@ object WallService {
             authorName = author.name,
             text = postText,
             copyright = copyright,
+            date = LocalDateTime.now(),
             replyOwnerId = replyPost?.authorId,
             replyPostId = replyPost?.id,
             isPinned = isPinned,
