@@ -12,6 +12,7 @@ import reports.InvalidReasonException
 import comments.CommentNotFoundException
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDateTime
 
 class WallServiceTest {
 
@@ -174,7 +175,8 @@ class WallServiceForTests {
                     authorId = authorId,
                     text = text,
                     replyUserId = replyUserId,
-                    replyCommentId = replyCommentId
+                    replyCommentId = replyCommentId,
+                    date = LocalDateTime.now()
                 )
                 post.comments[commentId] = comment
                 commentId++
@@ -206,6 +208,7 @@ class WallServiceForTests {
             isPinned = isPinned,
             friendOnly = friendOnly,
             markedAsAd = markedAsAd,
+            date = LocalDateTime.now()
         )
 
         if (!posts.containsKey(wallOwner.id)) {
