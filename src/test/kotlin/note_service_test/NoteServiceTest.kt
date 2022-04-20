@@ -1,4 +1,4 @@
-package noteservicetest
+package note_service_test
 
 import comments.Comment
 import notes.Note

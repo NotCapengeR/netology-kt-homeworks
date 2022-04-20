@@ -1,4 +1,4 @@
-package wallservicetest
+package wall_service_test
 
 import wall.*
 import post.Post
