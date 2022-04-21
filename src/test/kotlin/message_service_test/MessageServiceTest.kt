@@ -3,7 +3,6 @@ package message_service_test
 import attachments.Attachments
 import junit.framework.TestCase.*
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import wall.User
 import wall.messages.*
@@ -270,6 +269,7 @@ class MessageServiceImpl : MessageService {
         val message = getMessageById(messageId, editorId, secondUserId)
         if (message != null && message.authorId == editorId) {
             val newMessage = message.copy(text = newText)
+            newMessage.editHistory.add(message.text)
             val key = getKey(editorId, secondUserId)
             dialogs[key]?.messages?.set(messageId, newMessage)
             return dialogs[key]?.messages?.containsValue(newMessage) ?: false

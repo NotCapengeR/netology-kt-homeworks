@@ -148,6 +148,7 @@ object MessageServiceImpl : MessageService {
         val message = getMessageById(messageId, editorId, secondUserId)
         if (message != null && message.authorId == editorId) {
             val newMessage = message.copy(text = newText)
+            newMessage.editHistory.add(message.text)
             val key = getKey(editorId, secondUserId)
             dialogs[key]?.messages?.set(messageId, newMessage)
             return dialogs[key]?.messages?.containsValue(newMessage) == true

@@ -10,6 +10,6 @@ data class Message(
     val date: LocalDateTime,
     val replyMessageId: Long?,
     val attachments: MutableList<Attachments> = mutableListOf(),
-    val editHistory: HashMap<Long, String> = HashMap(),
+    val editHistory: MutableList<String> = mutableListOf(),
     val readIds: MutableList<Long> = mutableListOf() // id всех юзеров, прочитавших сообщение
 )
