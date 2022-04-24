@@ -130,11 +130,8 @@ class MessageServiceImpl : MessageService {
     private val dialogs = HashMap<Pair<Long, Long>, Dialog>()
     private var messageId: Long = 1L
 
-    private fun getKey(firstUserId: Long, secondUserId: Long): Pair<Long, Long> {
-        val min = min(firstUserId, secondUserId)
-        val max = max(firstUserId, secondUserId)
-        return Pair(min, max)
-    }
+    private fun getKey(firstUserId: Long, secondUserId: Long): Pair<Long, Long> =
+        min(firstUserId, secondUserId) to max(firstUserId, secondUserId)
 
     private fun searchMessage(
         firstUserId: Long,
