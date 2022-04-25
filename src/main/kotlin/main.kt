@@ -1,5 +1,6 @@
 package wall
 
+import com.google.gson.Gson
 import wall.messages.MessageServiceImpl
 
 fun main() {
@@ -15,5 +16,6 @@ fun main() {
     MessageServiceImpl.sendMessage(valera.id, kirkorov.id, "TEST8")
     MessageServiceImpl.sendMessage(valera.id, kirkorov.id, "TEST9")
     val test = MessageServiceImpl.read(5, kirkorov.id, valera.id)
-    println(test)
+    val gson = Gson()
+    println(gson.toJson(test))
 }
