@@ -308,13 +308,13 @@ class MessageServiceImpl : MessageService {
         val dialog = searchDialogs(firstUserId = readerId, secondUserId = secondUserId, count = 1).dialogs?.first()
         val message = getMessageById(messageId, readerId, secondUserId)
         if (dialog?.messages?.containsValue(message) == true && message?.readIds?.contains(readerId) == false) {
-            val unreadMessage = dialog.messages.values
+            val readMessages = dialog.messages.values.asSequence()
                 .filter { it.id <= messageId }
                 .takeWhile { !it.readIds.contains(readerId) }
-            unreadMessage.forEach {
-                it.readIds.add(readerId)
-            }
-            return unreadMessage
+                .onEach {
+                    it.readIds.add(readerId)
+                }
+            return readMessages.toList()
         }
         return emptyList()
     }
