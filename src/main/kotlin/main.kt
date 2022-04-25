@@ -12,6 +12,8 @@ fun main() {
     MessageServiceImpl.sendMessage(valera.id, kirkorov.id, "TEST5")
     MessageServiceImpl.sendMessage(valera.id, kirkorov.id, "TEST6")
     MessageServiceImpl.sendMessage(valera.id, kirkorov.id, "TEST7")
+    MessageServiceImpl.sendMessage(valera.id, kirkorov.id, "TEST8")
+    MessageServiceImpl.sendMessage(valera.id, kirkorov.id, "TEST9")
     val test = MessageServiceImpl.read(5, kirkorov.id, valera.id)
     println(test)
 }

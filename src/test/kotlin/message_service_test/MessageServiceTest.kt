@@ -313,8 +313,8 @@ class MessageServiceImpl : MessageService {
                 .takeWhile { !it.readIds.contains(readerId) }
             unreadMessage.forEach {
                 it.readIds.add(readerId)
-                return unreadMessage
             }
+            return unreadMessage
         }
         return emptyList()
     }

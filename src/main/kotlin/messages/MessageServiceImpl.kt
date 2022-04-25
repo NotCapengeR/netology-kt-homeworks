@@ -184,16 +184,16 @@ object MessageServiceImpl : MessageService {
     }
 
     override fun read(messageId: Long, readerId: Long, secondUserId: Long): List<Message> {
-        val dialog = searchDialogs(firstUserId = readerId,secondUserId = secondUserId, count = 1).dialogs?.first()
+        val dialog = searchDialogs(firstUserId = readerId, secondUserId = secondUserId, count = 1).dialogs?.first()
         val message = getMessageById(messageId, readerId, secondUserId)
         if (dialog?.messages?.containsValue(message) == true && message?.readIds?.contains(readerId) == false) {
-            val unreadMessage = dialog.messages.values
+            val unreadMessages = dialog.messages.values
                 .filter { it.id <= messageId }
                 .takeWhile { !it.readIds.contains(readerId) }
-            unreadMessage.forEach {
+            unreadMessages.forEach {
                 it.readIds.add(readerId)
-                return unreadMessage
             }
+            return unreadMessages
         }
         return emptyList()
     }
