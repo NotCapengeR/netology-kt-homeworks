@@ -258,7 +258,7 @@ class MessageServiceImpl : MessageService {
         }
         dialogs[key]?.messages?.set(messageId, message)
         messageId++
-        if (attachments != null) attach(message, attachments)
+        attachments?.let { attach(message, attachments) }
         return message.id
     }
 
