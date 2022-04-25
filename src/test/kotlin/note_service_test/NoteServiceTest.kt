@@ -98,6 +98,7 @@ class NoteService {
             if (note != null && !note.comments.values.isEmpty()) {
                 val commentsList = note.comments.values
                 commentsList.filter { commentsList.indexOf(it) >= offset }
+                    .ifEmpty { return emptyList() }
                     .take(count)
                     .sortedWith { p1, p2 ->
                         p1.date.compareTo(p2.date)
@@ -125,6 +126,7 @@ class NoteService {
             val notesList = notes[ownerId]?.values
             if (!notesList.isNullOrEmpty()) {
                 notesList.filter { noteIds.contains(it.id) && notesList.indexOf(it) >= offset }
+                    .ifEmpty { return emptyList() }
                     .take(count)
                     .sortedWith { p1, p2 ->
                         p1.date.compareTo(p2.date)
