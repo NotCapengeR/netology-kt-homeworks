@@ -145,20 +145,21 @@ class MessageServiceImpl : MessageService {
         val dialog = dialogs[key]
         if (dialog != null) {
             val messages = dialog.messages.values
-            val result = messages.asSequence()
+            messages.asSequence()
                 .filter { messageIds.contains(it.id) && messages.indexOf(it) >= offset }
                 .take(count)
                 .sortedWith { p1, p2 ->
                     p1.date.compareTo(p2.date)
                 }
                 .toList()
-            if (result.isNotEmpty()) {
-                return if (!sort) {
-                    MessageSearchResult.Success(result.reversed())
-                } else {
-                    MessageSearchResult.Success(result)
+                .ifEmpty { return MessageSearchResult.NotFound }
+                .let {
+                    return if (!sort) {
+                        MessageSearchResult.Success(it.reversed())
+                    } else {
+                        MessageSearchResult.Success(it)
+                    }
                 }
-            }
         }
         return MessageSearchResult.NotFound
     }
@@ -178,21 +179,21 @@ class MessageServiceImpl : MessageService {
             } else DialogSearchResult.NotFound
         }
         val dialogs = dialogs.values
-        val result = dialogs.asSequence()
+        dialogs.asSequence()
             .filter { (it.id.first == firstUserId || it.id.second == firstUserId) && dialogs.indexOf(it) >= offset }
             .take(count)
             .sortedWith { p1, p2 ->
                 p1.creationDate.compareTo(p2.creationDate)
             }
             .toList()
-        if (result.isNotEmpty()) {
-            return if (!sort) {
-                DialogSearchResult.Success(result.reversed())
-            } else {
-                DialogSearchResult.Success(result)
+            .ifEmpty { return DialogSearchResult.NotFound }
+            .let {
+                return if (!sort) {
+                    DialogSearchResult.Success(it.reversed())
+                } else {
+                    DialogSearchResult.Success(it)
+                }
             }
-        }
-        return DialogSearchResult.NotFound
     }
 
     override fun getMessageById(messageId: Long, firstUserId: Long, secondUserId: Long): Message? {
@@ -319,14 +320,17 @@ class MessageServiceImpl : MessageService {
         val dialog = searchDialogs(firstUserId = readerId, secondUserId = secondUserId, count = 1).dialogs?.first()
         val message = getMessageById(messageId, readerId, secondUserId)
         if (dialog?.messages?.containsValue(message) == true && message?.readIds?.contains(readerId) == false) {
-            val readMessages = dialog.messages.values.asSequence()
+            dialog.messages.values.asSequence()
                 .filter { it.id <= messageId }
                 .takeWhile { !it.readIds.contains(readerId) }
+                .sortedWith { p1, p2 ->
+                    p1.date.compareTo(p2.date)
+                }
                 .onEach {
                     it.readIds.add(readerId)
                 }
                 .toList()
-            return readMessages
+                .let { return it }
         }
         return emptyList()
     }
