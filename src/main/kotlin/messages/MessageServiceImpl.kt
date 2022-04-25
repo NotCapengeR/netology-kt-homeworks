@@ -187,13 +187,13 @@ object MessageServiceImpl : MessageService {
         val dialog = searchDialogs(firstUserId = readerId, secondUserId = secondUserId, count = 1).dialogs?.first()
         val message = getMessageById(messageId, readerId, secondUserId)
         if (dialog?.messages?.containsValue(message) == true && message?.readIds?.contains(readerId) == false) {
-            val readMessages = dialog.messages.values.asSequence()
+            val readMessages = dialog.messages.values
                 .filter { it.id <= messageId }
                 .takeWhile { !it.readIds.contains(readerId) }
                 .onEach {
                     it.readIds.add(readerId)
                 }
-            return readMessages.toList()
+            return readMessages
         }
         return emptyList()
     }
