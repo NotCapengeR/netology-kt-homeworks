@@ -136,7 +136,7 @@ object MessageServiceImpl : MessageService {
             dialogs[key] = createDialog(senderId, recipientId)
         }
         dialogs[key]?.messages?.set(messageId, message)
-        messageId++
+        if (dialogs[key]?.messages?.containsKey(messageId) == true) messageId++
         attachments?.let { attach(message, attachments) }
         return message.id
     }

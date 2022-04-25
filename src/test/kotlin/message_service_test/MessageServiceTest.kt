@@ -257,7 +257,7 @@ class MessageServiceImpl : MessageService {
             dialogs[key] = createDialog(senderId, recipientId)
         }
         dialogs[key]?.messages?.set(messageId, message)
-        messageId++
+        if (dialogs[key]?.messages?.containsKey(messageId) == true) messageId++
         attachments?.let { attach(message, attachments) }
         return message.id
     }
@@ -269,7 +269,7 @@ class MessageServiceImpl : MessageService {
             newMessage.editHistory.add(message.text)
             val key = getKey(editorId, secondUserId)
             dialogs[key]?.messages?.set(messageId, newMessage)
-            return dialogs[key]?.messages?.containsValue(newMessage) ?: false
+            return dialogs[key]?.messages?.containsValue(newMessage) == true
         }
         return false
     }
