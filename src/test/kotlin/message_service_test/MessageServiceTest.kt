@@ -151,11 +151,12 @@ class MessageServiceImpl : MessageService {
                 .sortedWith { p1, p2 ->
                     p1.date.compareTo(p2.date)
                 }
-            if (result.toList().isNotEmpty()) {
+                .toList()
+            if (result.isNotEmpty()) {
                 return if (!sort) {
-                    MessageSearchResult.Success(result.toList().reversed())
+                    MessageSearchResult.Success(result.reversed())
                 } else {
-                    MessageSearchResult.Success(result.toList())
+                    MessageSearchResult.Success(result)
                 }
             }
         }
@@ -183,11 +184,12 @@ class MessageServiceImpl : MessageService {
             .sortedWith { p1, p2 ->
                 p1.creationDate.compareTo(p2.creationDate)
             }
-        if (result.toList().isNotEmpty()) {
+            .toList()
+        if (result.isNotEmpty()) {
             return if (!sort) {
-                DialogSearchResult.Success(result.toList().reversed())
+                DialogSearchResult.Success(result.reversed())
             } else {
-                DialogSearchResult.Success(result.toList())
+                DialogSearchResult.Success(result)
             }
         }
         return DialogSearchResult.NotFound
@@ -323,7 +325,8 @@ class MessageServiceImpl : MessageService {
                 .onEach {
                     it.readIds.add(readerId)
                 }
-            return readMessages.toList()
+                .toList()
+            return readMessages
         }
         return emptyList()
     }
